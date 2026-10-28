@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#07070F">
+<title>몽실 트래블</title>
+<link rel="icon" id="favicon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 데스크톱은 가운데 폰 프레임, 모바일은 전체 화면.
+   카카오톡형 채팅방(헤더 · 여행 조건 · 서비스 메뉴 · 대화 · 입력바)을 검은 배경 네온으로. */
+:root{
+  --outside:#020206;
+  --room:#07070F;
+  --panel:#0E0E1A;
+  --panel2:#15152A;
+  --line:#25254A;
+  --fg:#F2F3FF;
+  --muted:#9A9CC4;
+  --cyan:#5CF4FF;
+  --violet:#B57BFF;
+  --pink:#FF5FD2;
+  --ok:#6CFFB8;
+  --danger:#FF7A9A;
+  --mine-fg:#06060E;
+  --glow:0 0 18px #5CF4FF33;
+  --font:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 20% 0%,#5CF4FF14 0,transparent 40%),radial-gradient(ellipse at 90% 90%,#B57BFF1A 0,transparent 45%),var(--outside);
+  color:var(--fg);font-family:var(--font);font-size:15px;display:flex;justify-content:center;align-items:center}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.phone{position:relative;width:100%;max-width:420px;height:100%;max-height:900px;display:flex;flex-direction:column;overflow:hidden;
+  background:radial-gradient(ellipse at 0% 0%,#5CF4FF12 0,transparent 35%),radial-gradient(ellipse at 100% 40%,#B57BFF14 0,transparent 40%),var(--room)}
+@media (min-width:500px){ .phone{height:calc(100% - 40px);border-radius:32px;border:1px solid #5CF4FF2E;box-shadow:0 0 0 1px #B57BFF14,0 0 60px #5CF4FF1A,0 30px 90px #000} }
+
+/* 헤더 */
+.top{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top,0px)) 10px 6px}
+.top h1{font-size:17px;font-weight:700;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}
+.top h1 small{font-size:12px;font-weight:400;color:var(--muted);margin-left:5px}
+.icon-btn{width:38px;height:38px;border:0;background:transparent;border-radius:50%;display:grid;place-items:center;color:#D9DBFF}
+.icon-btn:hover{background:#5CF4FF14;color:var(--cyan)}
+.live{flex:none;font-size:11px;font-weight:700;letter-spacing:.5px;border-radius:10px;padding:4px 8px;border:1px solid #6CFFB855;color:var(--ok);background:#6CFFB80F}
+.live.off{color:var(--muted);border-color:var(--line);background:transparent}
+
+/* 여행 조건 */
+.tripbar{display:flex;gap:6px;padding:2px 12px 8px;align-items:center}
+.trip-chip{flex:1;min-width:0;display:flex;align-items:center;gap:7px;border:1px solid #5CF4FF33;background:#0E0E1ACC;border-radius:12px;padding:8px 10px;font-size:12.5px;text-align:left}
+.trip-chip:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.trip-chip span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trip-chip b{font-weight:700;color:#fff}
+.trip-chip svg.i{width:16px;height:16px;color:var(--cyan)}
+.fx-mini{flex:none;font-size:11.5px;color:#E6E1FF;border:1px solid #B57BFF44;background:#0E0E1ACC;border-radius:12px;padding:8px 9px;font-variant-numeric:tabular-nums}
+.fx-mini:hover{border-color:var(--violet)}
+
+/* 서비스 메뉴 */
+.menu{display:flex;gap:2px;overflow-x:auto;padding:8px 6px;border-block:1px solid #5CF4FF1F;background:#0A0A14E6;scrollbar-width:none}
+.menu::-webkit-scrollbar{display:none}
+.menu button{flex:none;width:56px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#C9CBEF;padding:2px 0}
+.menu .ic,.grid .ic{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:var(--cyan);background:#5CF4FF0D;border:1px solid #5CF4FF33;transition:.2s}
+.menu button:hover .ic,.grid button:hover .ic{box-shadow:0 0 16px #5CF4FF55;border-color:var(--cyan);color:#fff}
+.menu button[data-tool="deals"] .ic{color:var(--pink);border-color:#FF5FD255;background:#FF5FD20D}
+
+/* 대화 */
+.log{flex:1;overflow-y:auto;padding:4px 12px 16px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain;
+  background-image:radial-gradient(1px 1px at 18% 14%,#ffffff70 45%,transparent 60%),radial-gradient(1px 1px at 76% 32%,#5CF4FF80 45%,transparent 60%),radial-gradient(1px 1px at 40% 78%,#B57BFF80 45%,transparent 60%);
+  background-size:240px 220px,310px 280px,280px 330px}
+.date{align-self:center;margin:12px 0 8px;font-size:11.5px;color:#D7D9FF;border:1px solid #5CF4FF2E;padding:4px 12px;border-radius:12px;background:#0E0E1A}
+.notice{align-self:center;max-width:92%;text-align:center;font-size:12.5px;color:#D7D9FF;background:#0E0E1AE6;border:1px solid #B57BFF33;padding:8px 12px;border-radius:12px;line-height:1.55}
+.notice b{color:#fff}
+.row{display:flex;gap:8px;align-items:flex-start}
+.row.mine{justify-content:flex-end}
+.avatar{width:40px;height:40px;flex:none;border-radius:15px;background:var(--yarn) center/86% no-repeat,#12122A;border:1px solid #5CF4FF44;box-shadow:0 0 14px #5CF4FF33}
+.avatar.ghost{visibility:hidden;height:0}
+.col{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:78%}
+.col.wide{max-width:86%;flex:1}
+.name{font-size:12.5px;color:#C9CBEF;margin-left:2px}
+.line{display:flex;align-items:flex-end;gap:5px;min-width:0}
+.row.mine .line{flex-direction:row-reverse}
+.bubble{padding:9px 12px;border-radius:15px;line-height:1.6;word-break:break-word;white-space:pre-wrap;min-width:0;font-size:14.5px}
+.theirs .bubble{background:linear-gradient(135deg,#13132A,#0F0F1D);border:1px solid #5CF4FF2B;border-top-left-radius:4px;box-shadow:0 0 18px #5CF4FF0D}
+.mine .bubble{background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--mine-fg);border-top-right-radius:4px;box-shadow:0 0 18px #5CF4FF33;font-weight:500}
+.row.cont .bubble{border-radius:15px}
+.bubble strong{color:#fff}
+.mine .bubble strong{color:var(--mine-fg)}
+.bubble a{color:var(--cyan)}
+.bubble.err{background:#2A0F18;border-color:#FF7A9A55;color:#FFC3D2}
+.meta{font-size:11px;color:#7F82AE;white-space:nowrap;flex:none;font-variant-numeric:tabular-nums}
+.typing{display:inline-flex;gap:4px;padding:4px 2px;align-items:center}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:b 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s;background:var(--violet)}.typing i:nth-child(3){animation-delay:.3s;background:var(--pink)}
+.typing em{font-style:normal;font-size:12px;color:var(--muted);margin-left:6px}
+@keyframes b{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+.after{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.after button{border:1px solid #5CF4FF44;background:#0E0E1A;border-radius:14px;padding:5px 10px;font-size:12.5px;display:flex;align-items:center;gap:5px;color:#E3E5FF}
+.after button:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.after svg.i{width:14px;height:14px;color:var(--cyan)}
+
+/* 카드 */
+.bubble.cardb{flex:1;padding:0;overflow:hidden;white-space:normal;background:linear-gradient(160deg,#12122A,#0B0B17);border:1px solid #5CF4FF33}
+.card-head{display:flex;gap:10px;align-items:center;padding:12px 14px 10px;border-bottom:1px solid #5CF4FF1F}
+.card-head .ci{width:34px;height:34px;border-radius:11px;background:#5CF4FF12;border:1px solid #5CF4FF44;color:var(--cyan);display:grid;place-items:center;flex:none}
+.card-head .ci svg.i{width:19px;height:19px}
+.card-head b{display:block;font-size:14.5px;color:#fff}
+.card-head small{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.card-body{padding:10px 14px;font-size:13.5px;line-height:1.6}
+.card-body:empty{display:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2;color:#fff;text-shadow:0 0 16px #5CF4FF66}
+.subtle{font-size:12px;color:var(--muted)}
+.card-btns{display:flex;flex-direction:column;gap:6px;padding:4px 12px 12px}
+.card-btns a,.card-btns button{display:flex;align-items:center;justify-content:space-between;gap:8px;text-decoration:none;border:1px solid var(--line);background:#16162C;border-radius:10px;padding:10px 12px;font-size:13.5px;font-weight:500;text-align:left;color:#EDEEFF}
+.card-btns a:hover,.card-btns button:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.card-btns a.main{border-color:#5CF4FF66;background:linear-gradient(120deg,#5CF4FF1F,#B57BFF1F)}
+.card-btns small{font-weight:400;color:var(--muted);font-size:11.5px;display:block;margin-top:1px}
+.card-btns .ext{width:14px;height:14px;color:var(--muted)}
+.fx-row{display:flex;gap:6px;align-items:center;margin-top:8px}
+.fx-row input,.fx-row select{min-width:0;border:1px solid var(--line);background:#0A0A16;border-radius:9px;padding:8px 9px;font-size:13.5px}
+.fx-row input{width:42%;font-variant-numeric:tabular-nums}
+.fx-row select{flex:1}
+.wx{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.wx div{background:#16162C;border:1px solid var(--line);border-radius:9px;padding:7px 8px}
+.wx small{display:block;font-size:11px;color:var(--muted)}
+.wx b{font-size:13px;font-variant-numeric:tabular-nums}
+
+/* 빠른 질문 · 입력 */
+.quick{display:flex;gap:6px;overflow-x:auto;padding:6px 12px;scrollbar-width:none}
+.quick::-webkit-scrollbar{display:none}
+.quick button{flex:none;border:1px solid #B57BFF44;background:#0E0E1A;border-radius:16px;padding:6px 12px;font-size:13px;color:#E3E5FF}
+.quick button:hover{border-color:var(--violet);box-shadow:0 0 14px #B57BFF33}
+.bar{display:flex;align-items:flex-end;gap:6px;background:#0A0A14;border-top:1px solid #5CF4FF1F;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px))}
+.bar textarea{flex:1;min-width:0;resize:none;border:1px solid var(--line);background:#12122A;border-radius:18px;padding:9px 14px;max-height:120px;line-height:1.4;font-size:15px}
+.bar textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px #5CF4FF1A}
+.bar textarea::placeholder{color:#6F72A0}
+.plus{width:38px;height:38px;border:0;background:transparent;display:grid;place-items:center;color:var(--cyan);border-radius:50%}
+.send{height:38px;padding:0 14px;border:0;border-radius:18px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--mine-fg);font-weight:700;font-size:14px;box-shadow:0 0 16px #5CF4FF44}
+.send:disabled{background:#16162C;color:#5E6190;box-shadow:none;cursor:default}
+
+/* 시트 */
+.scrim{position:absolute;inset:0;background:#000000C4;backdrop-filter:blur(6px);display:flex;align-items:flex-end;z-index:20}
+.sheet{width:100%;background:linear-gradient(160deg,#13132A,#0A0A16);border:1px solid #5CF4FF33;border-bottom:0;border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:92%;overflow-y:auto;box-shadow:0 -10px 40px #5CF4FF14}
+.sheet h2{margin:0;font-size:18px;color:#fff}
+.sheet p{margin:0;font-size:13px;color:var(--muted);line-height:1.6}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:13px;font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.key-wrap{display:flex;gap:6px}
+.sheet input,.sheet select{width:100%;min-width:0;border:1px solid var(--line);background:#0A0A16;border-radius:10px;padding:11px 12px;font-size:14px}
+.sheet input:focus,.sheet select:focus{outline:none;border-color:var(--cyan)}
+.sheet input[type=checkbox]{width:auto;accent-color:var(--cyan)}
+.ghost-btn{border:1px solid var(--line);background:transparent;border-radius:10px;padding:0 12px;font-size:13px;flex:none}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5}
+.check input{margin-top:3px}
+.actions{display:flex;gap:8px}
+.actions button{flex:1;height:46px;border-radius:12px;border:0;font-weight:700;font-size:15px}
+.primary{background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--mine-fg)}
+.secondary{background:#16162C;border:1px solid var(--line)!important}
+.danger-link{border:0;background:none;color:var(--danger);font-size:13px;align-self:flex-start;padding:0}
+.status{font-size:12.5px;min-height:1em;color:var(--muted)}
+.status.ok{color:var(--ok)}.status.bad{color:var(--danger)}
+.tip{background:#16162C;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.tip b{color:#fff}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px}
+.grid button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#D7D9FF}
+.grid .ic{width:48px;height:48px;border-radius:16px}
+
+@media (prefers-reduced-motion:reduce){ .typing i{animation:none;opacity:.8} .menu .ic{transition:none} }
+</style>
+</head>
+<body>
+<div class="phone">
+  <header class="top">
+    <button class="icon-btn" id="clearBtn" aria-label="대화 새로 시작" title="대화 새로 시작"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h1>몽실 트래블 <small>트립닷컴 연결</small></h1>
+    <span class="live" id="livePill" title="웹 검색 상태">실시간 검색</span>
+    <button class="icon-btn" id="settingsBtn" aria-label="설정" title="설정"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  </header>
+
+  <div class="tripbar">
+    <button class="trip-chip" id="tripChip" type="button" aria-label="여행 조건 바꾸기">
+      <svg class="i" viewBox="0 0 24 24"><path d="M3 13l18-7-7 18-3-8z"/></svg><span id="tripText"></span>
+    </button>
+    <button class="fx-mini" id="fxMini" type="button" title="환율 계산기 열기">환율 불러오는 중</button>
+  </div>
+
+  <nav class="menu" id="menu" aria-label="트립닷컴 서비스"></nav>
+
+  <main class="log" id="log" aria-live="polite"></main>
+
+  <nav class="quick" id="quick" aria-label="빠른 질문"></nav>
+
+  <form class="bar" id="form" autocomplete="off">
+    <button class="plus" type="button" id="plusBtn" aria-label="여행 도구 열기"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    <textarea id="input" rows="1" placeholder="궁금하신 여행 정보를 물어보세요" aria-label="메시지 입력"></textarea>
+    <button class="send" id="sendBtn" type="submit" disabled>전송</button>
+  </form>
+
+  <!-- 여행 조건 -->
+  <div class="scrim" id="tripScrim" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="tripTitle">
+      <h2 id="tripTitle">여행 조건</h2>
+      <p id="tripHint">정해 두시면 몽실의 답변과 트립닷컴 바로가기에 반영됩니다.</p>
+      <div class="two">
+        <div class="field"><label for="tOrigin">출발 도시</label><input id="tOrigin" placeholder="예: 서울"></div>
+        <div class="field"><label for="tDest">목적지 도시</label><input id="tDest" placeholder="예: 도쿄, 파리"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="tDepart">가는 날</label><input id="tDepart" type="date"></div>
+        <div class="field"><label for="tReturn">오는 날</label><input id="tReturn" type="date"></div>
+      </div>
+      <div class="field"><label for="tPeople">인원 (성인)</label>
+        <select id="tPeople"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div class="status" id="tripStatus"></div>
+      <div class="actions"><button type="button" class="secondary" id="tripCancel">닫기</button><button type="button" class="primary" id="tripSave">적용하기</button></div>
+    </section>
+  </div>
+
+  <!-- 도구 -->
+  <div class="scrim" id="toolScrim" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="toolTitle">
+      <h2 id="toolTitle">여행 도구</h2>
+      <div class="grid" id="toolGrid"></div>
+      <div class="actions"><button type="button" class="secondary" id="toolClose">닫기</button></div>
+    </section>
+  </div>
+
+  <!-- 설정 -->
+  <div class="scrim" id="scrim" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <h2 id="sheetTitle">설정</h2>
+      <p>키는 이 브라우저 안에만 보관되고, 대화할 때 Groq 서버(api.groq.com)로만 전송됩니다. 환율·날씨·나라 정보와 트립닷컴 바로가기는 키 없이도 쓰실 수 있습니다.</p>
+      <div class="field">
+        <label for="keyInput">Groq API 키</label>
+        <div class="key-wrap"><input id="keyInput" type="password" placeholder="gsk_로 시작하는 키" spellcheck="false" autocomplete="off"><button type="button" class="ghost-btn" id="toggleKey">보기</button></div>
+        <div class="status" id="keyStatus"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="remember"><span>이 기기에 기억하기<br><span style="color:var(--muted)">끄시면 탭을 닫을 때 키가 자동으로 지워집니다. 공용 PC에서는 꺼 두세요.</span></span></label>
+      <div class="field"><label for="modelSel">모델</label><select id="modelSel"></select></div>
+      <label class="check"><input type="checkbox" id="searchToggle" checked><span>실시간 웹 검색 사용 (권장)<br><span style="color:var(--muted)">비자·운영시간·최신 소식처럼 바뀌는 정보를 검색해서 답합니다. gpt-oss 모델에서만 동작하고 답변이 몇 초 늦어질 수 있습니다.</span></span></label>
+      <div class="actions"><button type="button" class="secondary" id="cancelBtn">닫기</button><button type="button" class="primary" id="saveBtn">저장하기</button></div>
+      <button type="button" class="danger-link" id="forgetBtn">저장된 키 삭제</button>
+      <div class="tip"><b>키 발급:</b> console.groq.com → API Keys → Create API Key<br><b>보안 팁:</b> 키를 코드나 깃허브에 직접 적지 마세요. 여러 사람에게 배포할 때는 키를 서버(프록시)에 두는 방식이 안전합니다.</div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   1) 캐릭터 — 하얀 실뭉치 '몽실'
+   ================================================================ */
+const BOT_NAME = "몽실";
+const YARN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<path d="M47 50c4 4 9 6 12 3.5s.5-6.5-3.5-5" fill="none" stroke="#bfefff" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="31" cy="32" r="22" fill="#fff" stroke="#dfe4f2" stroke-width="1.6"/>
+<clipPath id="c"><circle cx="31" cy="32" r="21"/></clipPath>
+<g clip-path="url(#c)" fill="none" stroke="#e8e9f4" stroke-width="2.2" stroke-linecap="round">
+<path d="M10 20c12 5 28 5 42-2"/><path d="M9 28c13 6 31 6 44-3"/><path d="M13 46c10-11 23-17 37-17"/>
+<path d="M19 53c6-15 17-27 33-31"/><path d="M27 10c-7 9-9 22-4 35"/><path d="M41 12c-5 11-5 25 2 38"/></g>
+<ellipse cx="24" cy="34" rx="2.4" ry="2.9" fill="#2b2848"/><ellipse cx="38" cy="34" rx="2.4" ry="2.9" fill="#2b2848"/>
+<circle cx="24.9" cy="33" r=".9" fill="#fff"/><circle cx="38.9" cy="33" r=".9" fill="#fff"/>
+<circle cx="18.5" cy="39.5" r="3.1" fill="#ffc9e6"/><circle cx="43.5" cy="39.5" r="3.1" fill="#ffc9e6"/>
+<path d="M28.6 39.6q2.4 2.3 4.8 0" stroke="#2b2848" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+</svg>`;
+const YARN_URI = `data:image/svg+xml,${encodeURIComponent(YARN_SVG)}`;
+document.documentElement.style.setProperty("--yarn", `url("${YARN_URI}")`);
+document.getElementById("favicon").href = YARN_URI;
+
+/* ================================================================
+   2) 모델 — 2026년 8월에 llama-3.3/3.1이 종료되어 gpt-oss를 기본으로 씀
+   ================================================================ */
+const API = "https://api.groq.com/openai/v1";
+const PREFERRED = ["openai/gpt-oss-120b","openai/gpt-oss-20b","moonshotai/kimi-k2-instruct-0905","moonshotai/kimi-k2-instruct"];
+const FAST_MODEL = "openai/gpt-oss-20b";        // 질문에서 목적지·의도를 뽑는 보조 모델
+const SKIP_MODEL = /whisper|tts|guard|safeguard|playai|orpheus|compound|allam|distil|prompt/i;
+const supportsSearch = m => /gpt-oss/.test(m);
+const HISTORY_LIMIT = 12;
+
+const store = {
+  get(k){ try{ return sessionStorage.getItem(k) ?? localStorage.getItem(k); }catch{ return null; } },
+  set(k,v,persist){ try{ sessionStorage.setItem(k,v); }catch{} try{ persist ? localStorage.setItem(k,v) : localStorage.removeItem(k); }catch{} },
+  del(k){ try{ sessionStorage.removeItem(k); localStorage.removeItem(k);}catch{} }
+};
+const pref = { get(k,d){ try{ return localStorage.getItem(k) ?? d; }catch{ return d; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch{} } };
+let apiKey = store.get("groq_key") || "";
+let model = pref.get("neon_model", PREFERRED[0]);
+let useSearch = pref.get("neon_search", "1") === "1";
+let availableModels = null;
+
+/* ================================================================
+   3) 아이콘 · 메뉴 목록
+   ================================================================ */
+const P = {
+  flight:'<path d="M3 13l18-7-7 18-3-8z"/>',
+  hotel:'<path d="M3 20V6M3 14h18v6M3 10h6a3 3 0 0 1 3 3v1M15 10h3a3 3 0 0 1 3 3v1"/>',
+  train:'<rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 10h12M9 21l1.5-4M15 21l-1.5-4"/><circle cx="9.5" cy="13.5" r=".6"/><circle cx="14.5" cy="13.5" r=".6"/>',
+  tour:'<path d="M4 8h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 8v10" stroke-dasharray="2 2"/>',
+  car:'<path d="M5 16V12l2-5h10l2 5v4M5 16h14M5 16v2M19 16v2"/><circle cx="8" cy="13.5" r=".7"/><circle cx="16" cy="13.5" r=".7"/>',
+  transfer:'<path d="M4 7h11l-3-3M20 17H9l3 3"/>',
+  food:'<path d="M6 3v8M4 3v5a2 2 0 0 0 4 0V3M6 11v10M17 3c-2.2 0-3.5 3-3.5 6.5S15 13.5 17 13.5V21"/>',
+  deals:'<path d="M20 12l-8 8-8-8V4h8z"/><circle cx="8" cy="8" r="1.2"/>',
+  fx:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2"/>',
+  weather:'<circle cx="9" cy="9" r="3.5"/><path d="M9 2v1.5M2 9h1.5M4 4l1 1M14 4l-1 1"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9 2 3 3 0 0 0 0 6z"/>',
+  country:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+  trip:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/>'
+};
+const icon = (k, cls="i") => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[k]||""}</svg>`;
+const TOOLS = [["flight","항공권"],["hotel","호텔"],["train","기차"],["tour","투어·티켓"],["car","렌터카"],["transfer","공항픽업"],["food","맛집"],["deals","할인"],["fx","환율"],["weather","날씨"],["country","나라정보"]];
+const toolLabel = k => (TOOLS.find(t => t[0] === k) || [k,k])[1];
+
+/* ================================================================
+   4) 여행 조건
+   ================================================================ */
+const plusDays = n => new Date(Date.now() + n*86400000).toISOString().slice(0,10);
+const todayISO = () => new Date().toISOString().slice(0,10);
+const todayKo = () => new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+let trip = (()=>{ try{ return JSON.parse(pref.get("neon_trip","null")); }catch{ return null; } })() || {};
+trip = { origin:"서울", originEn:"Seoul", iataFrom:"SEL", dest:"", destEn:"", country:"", currency:"", iataTo:"", lat:null, lon:null, depart:plusDays(14), ret:plusDays(18), people:2, ...trip };
+if (trip.depart < todayISO()){ trip.depart = plusDays(14); trip.ret = plusDays(18); }
+const saveTrip = () => pref.set("neon_trip", JSON.stringify(trip));
+const shortDate = d => d ? `${Number(d.slice(5,7))}/${Number(d.slice(8,10))}` : "";
+function tripSummary(){
+  return trip.dest
+    ? `${trip.origin} 출발 → ${trip.dest}${trip.country?` (${regionName(trip.country)})`:""}, ${trip.depart} ~ ${trip.ret}, 성인 ${trip.people}명`
+    : `${trip.origin} 출발, 목적지 미정, 성인 ${trip.people}명`;
+}
+
+/* ================================================================
+   5) 공개 실시간 데이터 (키 불필요)
+   ================================================================ */
+const fx = { rates:null, date:"", source:"" };
+const dn = type => { try{ const d = new Intl.DisplayNames(["ko"],{type}); return (c, fb) => { try{ const n = d.of(c); return n && n !== c ? n : (fb ?? c); }catch{ return fb ?? c; } }; }catch{ return (c, fb) => fb ?? c; } };
+const curName = dn("currency"), regionName = dn("region"), langName = dn("language");
+const flagOf = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0))) : "";
+const num = (n, d=2) => Number(n).toLocaleString("ko-KR",{maximumFractionDigits:d});
+const withTimeout = (p, ms=6000) => Promise.race([p, new Promise((_,r) => setTimeout(() => r(new Error("시간 초과")), ms))]);
+
+async function loadRates(){
+  try{
+    const j = await (await fetch("https://open.er-api.com/v6/latest/USD")).json();
+    if (j.result !== "success") throw 0;
+    fx.rates = j.rates; fx.date = new Date(j.time_last_update_utc).toLocaleDateString("ko-KR"); fx.source = "ExchangeRate-API";
+  }catch{
+    try{ const j = await (await fetch("https://api.frankfurter.app/latest?from=USD")).json(); fx.rates = {...j.rates, USD:1}; fx.date = j.date; fx.source = "Frankfurter(ECB)"; }
+    catch{ fx.rates = null; }
+  }
+  updateFxMini();
+}
+const krwPer = c => fx.rates && fx.rates[c] && fx.rates.KRW ? fx.rates.KRW / fx.rates[c] : null;
+function updateFxMini(){
+  const c = trip.currency && trip.currency !== "KRW" && krwPer(trip.currency) ? trip.currency : "USD";
+  const v = krwPer(c);
+  $("fxMini").textContent = v ? `1 ${c} = ${num(v, v < 10 ? 2 : 0)}원` : "환율 정보 없음";
+}
+
+async function geocode(name, lang="ko"){
+  const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}&format=json`);
+  if (!r.ok) throw new Error("지명 검색 실패");
+  return (await r.json()).results?.[0] || null;
+}
+const countryCache = {};
+async function countryInfo(cc){
+  if (countryCache[cc]) return countryCache[cc];
+  const r = await fetch(`https://restcountries.com/v3.1/alpha/${cc}?fields=name,translations,capital,subregion,population,currencies,languages,timezones,idd,car`);
+  if (!r.ok) throw new Error("나라 정보를 불러오지 못했습니다.");
+  let j = await r.json(); if (Array.isArray(j)) j = j[0];
+  return (countryCache[cc] = j);
+}
+const WX = {0:"맑음",1:"대체로 맑음",2:"구름 조금",3:"흐림",45:"안개",48:"서리 안개",51:"약한 이슬비",53:"이슬비",55:"강한 이슬비",61:"약한 비",63:"비",65:"강한 비",71:"약한 눈",73:"눈",75:"강한 눈",80:"소나기",81:"강한 소나기",82:"매우 강한 소나기",95:"뇌우",96:"우박 동반 뇌우",99:"강한 뇌우"};
+const wxCache = {};
+async function weatherData(){
+  const key = `${trip.lat},${trip.lon}`;
+  if (wxCache[key] && Date.now() - wxCache[key].t < 30*60000) return wxCache[key].d;
+  if (trip.lat == null){ const g = await geocode(trip.destEn || trip.dest, "en"); if (!g) throw new Error("도시를 찾지 못했습니다."); trip.lat = g.latitude; trip.lon = g.longitude; saveTrip(); }
+  const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${trip.lat}&longitude=${trip.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=7`);
+  if (!r.ok) throw new Error("날씨 데이터를 불러오지 못했습니다.");
+  const d = await r.json();
+  wxCache[`${trip.lat},${trip.lon}`] = { t:Date.now(), d };
+  return d;
+}
+
+// 도시 이름 → 영문명 · 국가 · 통화 · 좌표 (지명 DB로 검증)
+async function resolveDest(name){
+  const [ko, en] = await Promise.all([geocode(name,"ko"), geocode(name,"en")]);
+  const g = en || ko;
+  if (!g) throw new Error(`'${name}'을(를) 찾지 못했습니다. 영어 도시명으로도 입력해 보세요.`);
+  let currency = "";
+  try{ const c = await countryInfo(g.country_code); currency = Object.keys(c.currencies || {})[0] || ""; }catch{}
+  return { dest: ko?.name || name, destEn: en?.name || name, country: g.country_code || "", currency, lat: g.latitude, lon: g.longitude };
+}
+
+/* ================================================================
+   6) 화면 도우미
+   ================================================================ */
+const $ = id => document.getElementById(id);
+const log = $("log"), input = $("input"), sendBtn = $("sendBtn");
+let history = [], busy = false, lastSender = null, lastMinute = null;
+const timeStr = d => d.toLocaleTimeString("ko-KR",{hour:"numeric",minute:"2-digit"});
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function format(s){
+  return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/^#{1,6}\s*/gm,"")
+    .replace(/(https?:\/\/[^\s<)\]]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+const scrollDown = () => { log.scrollTop = log.scrollHeight; };
+function addDate(){ const el = document.createElement("div"); el.className = "date"; el.textContent = todayKo(); log.appendChild(el); }
+function addNotice(html){ const el = document.createElement("div"); el.className = "notice"; el.innerHTML = html; log.appendChild(el); scrollDown(); lastSender = null; return el; }
+function addBubble(who, text, {html=null, card=false}={}){
+  const minute = timeStr(new Date());
+  const cont = lastSender === who && lastMinute === minute;
+  if (cont){ const prev = [...log.querySelectorAll(".meta")].pop(); if (prev && prev.dataset.who === who) prev.remove(); }
+  const row = document.createElement("div");
+  row.className = `row ${who==="me"?"mine":"theirs"}${cont?" cont":""}`;
+  row.innerHTML = `${who==="bot"?`<div class="avatar${cont?" ghost":""}" aria-hidden="true"></div>`:""}<div class="col${card?" wide":""}">${who==="bot"&&!cont?`<span class="name">${BOT_NAME}</span>`:""}<div class="line"><div class="bubble${card?" cardb":""}"></div><span class="meta" data-who="${who}">${minute}</span></div></div>`;
+  const bubble = row.querySelector(".bubble");
+  if (html !== null) bubble.innerHTML = html;
+  else if (text === null) bubble.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+  else bubble.innerHTML = format(text);
+  log.appendChild(row); scrollDown();
+  lastSender = who; lastMinute = minute;
+  return bubble;
+}
+const typingHTML = label => `<span class="typing"><i></i><i></i><i></i>${label?`<em>${esc(label)}</em>`:""}</span>`;
+
+function cardHTML({ic, title, sub, body="", buttons=[]}){
+  const btns = buttons.map((b,i) => b.ask
+    ? `<button type="button" data-ask="${esc(b.ask)}"><span>${esc(b.label)}${b.note?`<small>${esc(b.note)}</small>`:""}</span>${icon("chat","i ext")}</button>`
+    : `<a${b.main?' class="main"':""} href="${esc(b.url)}" target="_blank" rel="noopener noreferrer"><span>${esc(b.label)}${b.note?`<small>${esc(b.note)}</small>`:""}</span>${icon("ext","i ext")}</a>`).join("");
+  return `<div class="card-head"><span class="ci">${icon(ic)}</span><div><b>${esc(title)}</b>${sub?`<small>${esc(sub)}</small>`:""}</div></div><div class="card-body">${body}</div>${btns?`<div class="card-btns">${btns}</div>`:""}`;
+}
+const addCard = spec => addBubble("bot", "", { html: cardHTML(spec), card:true });
+
+function renderTrip(){
+  $("tripText").innerHTML = trip.dest
+    ? `<b>${esc(trip.origin)} → ${esc(trip.dest)}</b> · ${shortDate(trip.depart)}–${shortDate(trip.ret)} · ${trip.people}명`
+    : `${esc(trip.origin)} 출발 · <b>목적지를 정해 주세요</b>`;
+  updateFxMini();
+}
+function renderLive(){
+  const on = apiKey && useSearch && supportsSearch(model);
+  $("livePill").className = "live" + (on ? "" : " off");
+  $("livePill").textContent = on ? "실시간 검색" : "검색 꺼짐";
+}
+
+/* ================================================================
+   7) 트립닷컴 바로가기 카드
+   - 경로가 확인된 트립닷컴 주소만 직접 연결하고,
+     도시별 페이지는 트립닷컴 사이트 안 검색으로 찾게 함
+   ================================================================ */
+const enc = encodeURIComponent;
+const TRIP = "https://kr.trip.com";
+const slug = s => String(s||"").toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g,"").trim().replace(/\s+/g,"-");
+const siteSearch = q => `https://www.google.com/search?q=${enc("site:kr.trip.com " + q)}`;
+const needsDest = ["flight","hotel","train","tour","car","transfer","food","weather","country"];
+let pendingTool = null;
+
+function showTool(kind){
+  if (needsDest.includes(kind) && !trip.dest){ pendingTool = kind; openTrip("어느 도시로 가시는지 먼저 알려 주세요. 정해 주시면 바로 보여 드리겠습니다."); return; }
+  ({flight:flightCard, hotel:hotelCard, train:trainCard, tour:tourCard, car:carCard, transfer:transferCard, food:foodCard, deals:dealsCard, fx:fxCard, weather:weatherCard, country:countryCard})[kind]?.();
+}
+const dateNote = () => `${trip.depart} ~ ${trip.ret} · 성인 ${trip.people}명`;
+const CHECK_NOTE = `<span class="subtle">트립닷컴 화면에서 날짜와 인원을 한 번 더 확인해 주세요. 실제 가격과 남은 좌석·객실은 트립닷컴에서만 확인할 수 있습니다.</span>`;
+
+function flightCard(){
+  const route = trip.iataFrom && trip.iataTo && trip.originEn && trip.destEn
+    ? `${TRIP}/flights/${slug(trip.originEn)}-to-${slug(trip.destEn)}/airfares-${trip.iataFrom.toLowerCase()}-${trip.iataTo.toLowerCase()}/` : "";
+  addCard({ ic:"flight", title:`${trip.origin} → ${trip.dest} 항공권`, sub:dateNote(), body:CHECK_NOTE,
+    buttons:[
+      route ? { main:true, label:"트립닷컴 노선 최저가 보기", note:`${trip.iataFrom} → ${trip.iataTo} 노선 운임`, url:route } : null,
+      { main:!route, label:"트립닷컴 항공권 검색", note:"출발·도착지와 날짜를 넣어 바로 예약", url:`${TRIP}/flights/` },
+      { label:"Google 항공편으로 가격 비교", note:"날짜별 최저가 그래프", url:`https://www.google.com/travel/flights?q=${enc(`Flights from ${trip.originEn||trip.origin} to ${trip.destEn||trip.dest} on ${trip.depart} through ${trip.ret}`)}&hl=ko&curr=KRW` },
+      { label:"언제 사면 저렴한지 물어보기", ask:`${trip.origin}에서 ${trip.dest} 가는 항공권은 언제 예매하면 저렴한지, 직항 항공사와 비행시간을 알려 주세요.` }
+    ].filter(Boolean)});
+}
+function hotelCard(){
+  const d = trip.destEn || trip.dest;
+  addCard({ ic:"hotel", title:`${trip.dest} 호텔`, sub:dateNote(), body:CHECK_NOTE,
+    buttons:[
+      { main:true, label:"트립닷컴 호텔 검색", note:`목적지에 '${d}' 입력 후 날짜 선택`, url:`${TRIP}/hotels/` },
+      { label:`트립닷컴의 ${trip.dest} 호텔 목록 찾기`, note:"트립닷컴 도시별 호텔 페이지", url:siteSearch(`${d} hotels list`) },
+      { label:"트립닷컴 호텔 할인코드", url:`${TRIP}/hot/%ED%98%B8%ED%85%94+%ED%95%A0%EC%9D%B8%EC%BD%94%EB%93%9C/` },
+      { label:"어느 동네에 묵을지 물어보기", ask:`${trip.dest}에서 처음 가는 여행자가 묵기 좋은 지역을 교통·치안·분위기 기준으로 비교해 주세요.` }
+    ]});
+}
+function trainCard(){
+  addCard({ ic:"train", title:`${trip.dest} 기차·교통`, sub:"도시 간 기차 · 고속철 · 패스",
+    buttons:[
+      { main:true, label:"트립닷컴 기차표", note:"한국·중국·유럽 등 기차 예매", url:`${TRIP}/trains/` },
+      { label:`트립닷컴 ${trip.dest} 기차 정보 찾기`, url:siteSearch(`${trip.dest} 기차`) },
+      { label:"Rome2Rio 이동 수단 비교", note:"기차·버스·항공 소요시간 비교", url:`https://www.rome2rio.com/map/${enc(trip.originEn||trip.origin)}/${enc(trip.destEn||trip.dest)}` },
+      { label:"현지 교통패스 물어보기", ask:`${trip.dest} 여행에 쓸 만한 교통패스와 기차 이용법을 알려 주세요.` }
+    ]});
+}
+function tourCard(){
+  addCard({ ic:"tour", title:`${trip.dest} 투어·입장권`, sub:"관광지 티켓 · 현지 투어 · 유심·와이파이",
+    buttons:[
+      { main:true, label:"트립닷컴 투어·티켓", note:"입장권과 현지 체험 예약", url:`${TRIP}/things-to-do/` },
+      { label:`트립닷컴 ${trip.dest} 투어 찾기`, url:siteSearch(`things-to-do ${trip.destEn||trip.dest}`) },
+      { label:"일정 짜 달라고 하기", ask:`${trip.dest} ${trip.depart}부터 ${trip.ret}까지 일정을 하루 단위로, 이동 동선과 함께 짜 주세요.` }
+    ]});
+}
+function carCard(){
+  addCard({ ic:"car", title:`${trip.dest} 렌터카`, sub:"공항·시내 픽업 렌터카",
+    buttons:[
+      { main:true, label:"트립닷컴 렌터카", note:"도시·공항별 렌터카 비교", url:`${TRIP}/carhire/` },
+      { label:`트립닷컴 ${trip.dest} 렌터카 페이지 찾기`, url:siteSearch(`carhire ${trip.destEn||trip.dest}`) },
+      { label:"현지 운전 규칙 물어보기", ask:`한국인이 ${trip.dest}에서 렌터카를 운전하려면 국제운전면허증이 필요한지, 주의할 교통 규칙을 알려 주세요.` }
+    ]});
+}
+function transferCard(){
+  addCard({ ic:"transfer", title:`${trip.dest} 공항 픽업`, sub:"공항 ↔ 호텔 이동",
+    buttons:[
+      { main:true, label:"트립닷컴 공항 픽업 찾기", url:siteSearch(`공항 픽업 ${trip.dest}`) },
+      { label:"트립닷컴 렌터카", url:`${TRIP}/carhire/` },
+      { label:"공항에서 시내 가는 법 물어보기", ask:`${trip.dest} 공항에서 시내까지 가는 방법(철도·버스·택시)과 요금, 소요시간을 알려 주세요.` }
+    ]});
+}
+function foodCard(){
+  const d = trip.destEn || trip.dest;
+  addCard({ ic:"food", title:`${trip.dest} 맛집`, sub:"트립닷컴 맛집 가이드 · 지도",
+    buttons:[
+      { main:true, label:`트립닷컴 ${trip.dest} 맛집 가이드`, note:"트립닷컴 여행 가이드 글", url:siteSearch(`${trip.dest} 맛집`) },
+      { label:"Google 지도에서 평점·영업시간 확인", url:`https://www.google.com/maps/search/${enc("best restaurants in "+d)}` },
+      { label:"꼭 먹어 볼 음식 물어보기", ask:`${trip.dest}에서 꼭 먹어 봐야 할 현지 음식과 유명한 지역, 주문 팁을 알려 주세요.` }
+    ]});
+}
+function dealsCard(){
+  addCard({ ic:"deals", title:"트립닷컴 할인", sub:"프로모션 · 할인코드",
+    buttons:[
+      { main:true, label:"트립닷컴 프로모션·할인코드", url:`${TRIP}/hot/promotions/Trip.com+%ED%95%A0%EC%9D%B8.html` },
+      { label:"호텔 할인코드", url:`${TRIP}/hot/%ED%98%B8%ED%85%94+%ED%95%A0%EC%9D%B8%EC%BD%94%EB%93%9C/` },
+      { label:"이번 달 트립닷컴 할인 물어보기", ask:"지금 진행 중인 트립닷컴 할인코드나 프로모션을 찾아서 알려 주세요." }
+    ]});
+}
+
+let fxSeq = 0;
+function fxCard(){
+  if (!fx.rates){ addBubble("bot","환율 정보를 아직 불러오지 못했습니다. 인터넷 연결을 확인하신 뒤 다시 눌러 주세요."); loadRates(); return; }
+  const id = ++fxSeq;
+  const base = trip.currency && trip.currency !== "KRW" && fx.rates[trip.currency] ? trip.currency : "USD";
+  const top = ["USD","JPY","EUR","CNY","GBP","THB","VND","TWD","HKD","SGD","AUD","PHP"];
+  const codes = Object.keys(fx.rates).filter(c => c !== "KRW").sort((a,b) => ((top.indexOf(a)+1||99) - (top.indexOf(b)+1||99)) || a.localeCompare(b));
+  const opts = codes.map(c => `<option value="${c}"${c===base?" selected":""}>${c} · ${esc(curName(c))}</option>`).join("");
+  addCard({ ic:"fx", title:"세계 환율 계산기", sub:`원화 기준 · 기준일 ${fx.date}`,
+    body:`<div class="big" id="fxBig${id}"></div><div class="subtle" id="fxSub${id}"></div>
+      <div class="fx-row"><input id="fxAmt${id}" type="number" min="0" step="any" value="100" aria-label="금액"><select id="fxCur${id}" aria-label="통화">${opts}</select></div>
+      <div class="fx-row" id="fxOut${id}"></div>
+      <div class="subtle" style="margin-top:6px">${esc(fx.source)} 기준입니다. 은행·카드사 수수료와 실제 적용 환율은 다를 수 있습니다.</div>`,
+    buttons:[ { label:"환전 요령 물어보기", ask:`${trip.dest || "해외"} 여행 갈 때 현금 환전, 트래블카드, 신용카드 중 무엇이 유리한지 알려 주세요.` } ]});
+  const upd = () => {
+    const c = $(`fxCur${id}`).value, a = Number($(`fxAmt${id}`).value || 0), k = krwPer(c);
+    $(`fxBig${id}`).textContent = `1 ${c} = ${num(k, k < 10 ? 3 : 2)}원`;
+    $(`fxSub${id}`).textContent = `${curName(c)} · 1만 원 = ${num(10000/k, 2)} ${c}`;
+    $(`fxOut${id}`).innerHTML = `<span><b style="color:#fff">${num(a,4)} ${c}</b> ≈ <b style="color:var(--cyan)">${num(a*k,0)}원</b></span>`;
+  };
+  $(`fxAmt${id}`).addEventListener("input", upd); $(`fxCur${id}`).addEventListener("change", upd); upd();
+}
+async function weatherCard(){
+  const b = addBubble("bot", "", { html: cardHTML({ ic:"weather", title:`${trip.dest} 날씨`, sub:"불러오는 중입니다…" }), card:true });
+  try{
+    const w = await weatherData(), c = w.current, d = w.daily;
+    const week = d.time.map((t,i) => `${shortDate(t)} ${WX[d.weather_code[i]]||""} ${Math.round(d.temperature_2m_min[i])}~${Math.round(d.temperature_2m_max[i])}° · 강수 ${d.precipitation_probability_max[i] ?? "—"}%`).join("<br>");
+    b.innerHTML = cardHTML({ ic:"weather", title:`${trip.dest} 날씨`, sub:"현재와 7일 예보 · Open-Meteo",
+      body:`<div class="big">${Math.round(c.temperature_2m)}°C</div><div class="subtle">${esc(WX[c.weather_code]||"")} · 체감 ${Math.round(c.apparent_temperature)}°C · 현지 ${esc(c.time.slice(11,16))}</div>
+        <div class="wx"><div><small>습도</small><b>${c.relative_humidity_2m}%</b></div><div><small>오늘 강수</small><b>${d.precipitation_probability_max[0] ?? "—"}%</b></div><div><small>풍속</small><b>${num(c.wind_speed_10m,0)}km/h</b></div></div>
+        <div class="subtle" style="margin-top:8px;line-height:1.75">${week}</div>`,
+      buttons:[ { label:"옷차림 물어보기", ask:`지금 ${trip.dest} 날씨에 맞는 옷차림과 챙길 것을 알려 주세요.` } ]});
+  }catch(e){ b.innerHTML = cardHTML({ ic:"weather", title:`${trip.dest} 날씨`, sub:e.message || "날씨를 불러오지 못했습니다." }); }
+  scrollDown();
+}
+async function countryCard(){
+  const cc = trip.country;
+  const b = addBubble("bot", "", { html: cardHTML({ ic:"country", title:`${regionName(cc, trip.dest)} 기본 정보`, sub:"불러오는 중입니다…" }), card:true });
+  try{
+    if (!cc) throw new Error("나라를 확인하지 못했습니다. 여행 조건에서 목적지를 다시 적용해 주세요.");
+    const c = await countryInfo(cc);
+    const nameKo = c.translations?.kor?.common || regionName(cc);
+    b.innerHTML = cardHTML({ ic:"country", title:`${flagOf(cc)} ${nameKo}`, sub:c.name?.official || "",
+      body:countryKV(c),
+      buttons:[
+        { main:true, label:"외교부 해외안전여행", note:"입국 요건 · 여행경보 · 안전 공지", url:"https://www.0404.go.kr/" },
+        { label:`트립닷컴 ${nameKo} 여행 가이드`, url:siteSearch(`${nameKo} 여행`) },
+        { label:"비자·입국 준비물 물어보기", ask:`대한민국 여권으로 ${nameKo}에 관광 갈 때 비자, 입국 서류, 전압·플러그, 팁 문화를 최신 기준으로 알려 주세요.` }
+      ]});
+  }catch(e){ b.innerHTML = cardHTML({ ic:"country", title:"나라 정보", sub:e.message || "불러오지 못했습니다." }); }
+  scrollDown();
+}
+function countryKV(c){
+  const curr = Object.keys(c.currencies||{}).map(k => `${curName(k)} (${k})`).join(", ");
+  const langs = Object.entries(c.languages||{}).map(([k,v]) => langName(k, v)).join(", ");
+  const tz = c.timezones || [];
+  const idd = c.idd?.root ? c.idd.root + (c.idd.suffixes?.length === 1 ? c.idd.suffixes[0] : "") : "";
+  return `<dl class="kv"><dt>수도</dt><dd>${esc((c.capital||[]).join(", ")||"—")}</dd><dt>지역</dt><dd>${esc(c.subregion||"—")}</dd>
+    <dt>인구</dt><dd>약 ${num((c.population||0)/10000,0)}만 명</dd><dt>통화</dt><dd>${esc(curr||"—")}</dd><dt>언어</dt><dd>${esc(langs||"—")}</dd>
+    <dt>시간대</dt><dd>${esc(tz.length>3?`${tz[0]} 외 ${tz.length-1}개`:tz.join(", ")||"—")}</dd><dt>국가번호</dt><dd>${esc(idd||"—")}</dd>
+    <dt>차량 통행</dt><dd>${c.car?.side==="left"?"좌측 통행":c.car?.side==="right"?"우측 통행":"—"}</dd></dl>`;
+}
+
+/* ================================================================
+   8) 몽실의 답변 만들기
+   ① 보조 모델이 질문에서 목적지·의도를 뽑음
+   ② 지명 DB로 목적지를 검증하고 환율·날씨·나라 정보를 실제로 불러옴
+   ③ 그 데이터 + (선택) 웹 검색을 근거로 본 답변 작성
+   ================================================================ */
+async function groq(body){
+  const res = await fetch(`${API}/chat/completions`,{ method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${apiKey}` }, body: JSON.stringify(body) });
+  if (!res.ok){ let detail=""; try{ detail=(await res.json())?.error?.message||""; }catch{} throw Object.assign(new Error(detail),{status:res.status}); }
+  return res;
+}
+
+async function extractIntent(text){
+  const prompt = `사용자의 여행 질문에서 정보를 뽑아 JSON 하나만 출력하세요.
+현재 여행 조건: ${tripSummary()}
+최근 대화: ${history.slice(-4).map(m => `${m.role==="user"?"사용자":"몽실"}: ${m.content.slice(0,120)}`).join(" / ") || "없음"}
+사용자 질문: "${text}"
+
+규칙:
+- city: 질문이 다루는 여행 목적지 도시의 영문명. 나라만 말했으면 그 나라의 대표 관광 도시. 질문에 목적지가 없고 현재 조건과 이어지는 질문이면 현재 목적지 영문명(${trip.destEn||"없음"}). 여행지와 무관하면 빈 문자열.
+- cityKo: city의 한글명
+- iataTo: city의 IATA 도시 코드(예: TYO, PAR, BKK, NYC). 모르면 빈 문자열.
+- origin: 사용자가 출발지를 새로 말한 경우만 영문 도시명, 아니면 빈 문자열. originIata: 그 IATA 도시 코드.
+- show: 이 질문과 직접 관련된 바로가기만 0~3개. 가능한 값 flight, hotel, train, tour, car, transfer, food, deals, fx, weather, country
+형식: {"city":"","cityKo":"","iataTo":"","origin":"","originIata":"","show":[]}`;
+  const body = { model: FAST_MODEL, temperature:0, max_tokens:400, reasoning_effort:"low",
+    messages:[{role:"user",content:prompt}], response_format:{type:"json_object"} };
+  const run = async b => { const t = (await (await withTimeout(groq(b), 9000)).json()).choices?.[0]?.message?.content || ""; return JSON.parse((t.match(/\{[\s\S]*\}/)||[t])[0]); };
+  try{ return await run(body); }
+  catch{
+    try{ delete body.response_format; return await run(body); }   // JSON 모드를 못 쓰는 경우 한 번 더
+    catch{ return null; }
+  }
+}
+
+async function applyIntent(it, beforeEl){
+  if (!it) return;
+  const city = String(it.city||"").trim();
+  if (city && city.toLowerCase() !== String(trip.destEn).toLowerCase()){
+    try{
+      const d = await withTimeout(resolveDest(it.cityKo || city), 7000);
+      Object.assign(trip, d, { iataTo: /^[A-Za-z]{3}$/.test(it.iataTo||"") ? it.iataTo.toUpperCase() : "" });
+      if (!trip.destEn || /[가-힣]/.test(trip.destEn)) trip.destEn = city;
+      const n = addNotice(`목적지를 <b>${esc(trip.dest)}</b>(으)로 맞췄습니다 · 날짜와 인원은 위쪽 여행 조건에서 바꾸실 수 있어요.`);
+      if (beforeEl) log.insertBefore(n, beforeEl);
+      lastSender = "bot";
+    }catch{}
+  } else if (city && !trip.iataTo && /^[A-Za-z]{3}$/.test(it.iataTo||"")) trip.iataTo = it.iataTo.toUpperCase();
+  const origin = String(it.origin||"").trim();
+  if (origin && origin.toLowerCase() !== String(trip.originEn).toLowerCase()){
+    const g = await geocode(origin,"ko").catch(()=>null);
+    Object.assign(trip, { origin: g?.name || origin, originEn: origin, iataFrom: /^[A-Za-z]{3}$/.test(it.originIata||"") ? it.originIata.toUpperCase() : "" });
+  }
+  saveTrip(); renderTrip();
+}
+
+// 실제로 불러온 데이터 — 모델이 숫자를 지어내지 않게 근거로 넘김
+async function gatherFacts(){
+  const lines = [`오늘: ${todayKo()} (${todayISO()})`, `여행 조건: ${tripSummary()}`];
+  if (fx.rates){
+    const list = [...new Set([trip.currency, "USD","EUR","JPY"].filter(c => c && c !== "KRW" && krwPer(c)))];
+    lines.push(`실시간 환율(${fx.source}, 기준일 ${fx.date}): ` + list.map(c => `1 ${c} = ${num(krwPer(c), krwPer(c) < 10 ? 3 : 1)}원`).join(", "));
+  }
+  if (trip.dest){
+    const [w, c] = await Promise.allSettled([withTimeout(weatherData(), 6000), trip.country ? withTimeout(countryInfo(trip.country), 6000) : Promise.reject()]);
+    if (w.status === "fulfilled"){
+      const cur = w.value.current, d = w.value.daily;
+      lines.push(`${trip.dest} 현재 날씨: ${WX[cur.weather_code]||""} ${Math.round(cur.temperature_2m)}°C (체감 ${Math.round(cur.apparent_temperature)}°C), 7일 예보: ` +
+        d.time.map((t,i) => `${shortDate(t)} ${Math.round(d.temperature_2m_min[i])}~${Math.round(d.temperature_2m_max[i])}° 강수 ${d.precipitation_probability_max[i] ?? "?"}%`).join(", "));
+    }
+    if (c.status === "fulfilled"){
+      const v = c.value;
+      lines.push(`${regionName(trip.country)} 기본 정보: 수도 ${(v.capital||[]).join(", ")}, 통화 ${Object.keys(v.currencies||{}).join(", ")}, 언어 ${Object.values(v.languages||{}).join(", ")}, 시간대 ${(v.timezones||[]).slice(0,3).join(", ")}, 국가번호 ${v.idd?.root||""}${v.idd?.suffixes?.length===1?v.idd.suffixes[0]:""}, 차량 ${v.car?.side==="left"?"좌측":"우측"} 통행`);
+    }
+  }
+  return lines.join("\n");
+}
+
+function systemPrompt(facts, searching){
+  return `당신은 "${BOT_NAME}"입니다. 하얀 실뭉치처럼 생긴 여행 상담 캐릭터이고, 예약은 트립닷컴(Trip.com)으로 연결해 드립니다.
+
+[가장 중요한 원칙: 정확성]
+- 질문에 대한 답을 첫 문장에서 바로 말합니다. 묻지 않은 이야기로 시작하지 않습니다.
+- 아래 [실시간 데이터]에 있는 환율·날씨·국가 정보는 그 수치를 그대로 씁니다.
+- ${searching ? "비자, 입국 규정, 운영시간, 요금, 최신 소식처럼 바뀌는 정보는 반드시 웹 검색으로 확인한 뒤 답합니다. 검색 결과에 근거가 없으면 모른다고 말합니다." : "웹 검색이 꺼져 있습니다. 바뀔 수 있는 정보(비자, 요금, 운영시간)는 '최근 기준으로 확인이 필요하다'고 분명히 밝힙니다."}
+- 확실하지 않은 사실, 가게 이름, 가격, 날짜는 지어내지 않습니다. 모르면 "확실하지 않습니다"라고 말하고 확인 방법을 알려 드립니다.
+- 항공권·호텔의 실제 가격과 빈 좌석·객실은 알 수 없으니, 대략적인 범위만 말하고 "트립닷컴 바로가기에서 확인해 주세요"라고 안내합니다.
+- 비자·입국 규정을 말할 때는 대한민국 여권 기준으로 말하고, 외교부 해외안전여행(0404.go.kr) 최종 확인을 권합니다.
+
+[말투와 형식]
+- 항상 정중한 존댓말("~습니다", "~요")을 씁니다. 따뜻하지만 군더더기 없이 말합니다.
+- 카카오톡에서 읽기 좋게 짧은 문단과 목록을 씁니다. 표나 마크다운 제목(#)은 쓰지 않습니다. 강조는 **굵게**만 씁니다.
+- 일정·추천은 실제 동선과 이동 시간을 고려합니다.
+- 출처 표시용 기호(【】, [1] 등)는 쓰지 않습니다.
+- 여행과 무관한 질문에는 짧게 답하고 정중히 여행 이야기로 돌아옵니다.
+- AI냐고 물으시면 "몽실 캐릭터로 안내하는 AI 여행 챗봇"이라고 솔직히 말합니다.
+
+[실시간 데이터]
+${facts}`;
+}
+
+const cleanAnswer = s => String(s||"")
+  .replace(/【[^】]*】/g,"").replace(/\[\d+(?:†[^\]]*)?\]/g,"")
+  .replace(/^\s*\|.*\|\s*$/gm, m => m.replace(/\|/g," ").trim())
+  .replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+
+async function ask(userText){
+  history.push({role:"user",content:userText});
+  const bubble = addBubble("bot", "", { html: typingHTML("질문을 살펴보는 중") });
+  busy = true; updateSend();
+  try{
+    const intent = await extractIntent(userText);
+    await applyIntent(intent, bubble.closest(".row"));
+    bubble.innerHTML = typingHTML("실시간 정보를 불러오는 중");
+    const facts = await gatherFacts();
+    const searching = useSearch && supportsSearch(model);
+    const messages = [{role:"system",content:systemPrompt(facts, searching)}, ...history.slice(-HISTORY_LIMIT)];
+    let text = "";
+
+    if (searching){
+      bubble.innerHTML = typingHTML("웹에서 확인하는 중");
+      const body = { model, messages, temperature:0.3, max_completion_tokens:2048, reasoning_effort:"low", tools:[{type:"browser_search"}], tool_choice:"auto" };
+      try{
+        text = (await (await groq(body)).json()).choices?.[0]?.message?.content || "";
+      }catch(e){
+        if (e.status !== 400 && e.status !== 422) throw e;
+        delete body.tools; delete body.tool_choice;              // 검색을 못 쓰는 경우 검색 없이 다시
+        text = (await (await groq(body)).json()).choices?.[0]?.message?.content || "";
+      }
+      text = cleanAnswer(text);
+      bubble.innerHTML = format(text || "죄송합니다, 답변을 만들지 못했습니다. 다시 한 번 말씀해 주시겠어요?");
+    } else {
+      const body = { model, messages, temperature:0.3, max_completion_tokens:2048, stream:true };
+      if (supportsSearch(model)) body.reasoning_effort = "low";
+      const res = await groq(body);
+      const reader = res.body.getReader(), dec = new TextDecoder();
+      let buf = "";
+      while (true){
+        const {value, done} = await reader.read();
+        if (done) break;
+        buf += dec.decode(value,{stream:true});
+        const lines = buf.split("\n"); buf = lines.pop();
+        for (const line of lines){
+          const t = line.trim();
+          if (!t.startsWith("data:")) continue;
+          const data = t.slice(5).trim();
+          if (data === "[DONE]") continue;
+          try{ const d = JSON.parse(data).choices?.[0]?.delta?.content; if (d){ text += d; bubble.innerHTML = format(cleanAnswer(text)); scrollDown(); } }catch{}
+        }
+      }
+      text = cleanAnswer(text);
+      bubble.innerHTML = format(text || "죄송합니다, 답변을 만들지 못했습니다. 다시 한 번 말씀해 주시겠어요?");
+    }
+    if (text) history.push({role:"assistant",content:text}); else history.pop();
+    addShortcuts(bubble, intent?.show);
+  }catch(e){
+    history.pop();
+    bubble.classList.add("err"); bubble.textContent = errorText(e);
+    if (e.status === 401) openSettings("키가 맞지 않습니다. 다시 확인해 주세요.","bad");
+    if (e.status === 404) openSettings(`모델(${model})을 쓸 수 없습니다. 목록에서 다른 모델을 골라 주세요.`,"bad");
+  }finally{
+    busy = false; updateSend(); input.focus(); scrollDown();
+  }
+}
+
+function addShortcuts(bubble, show){
+  const list = (Array.isArray(show) ? show : []).filter(k => TOOLS.some(t => t[0] === k)).slice(0,3);
+  if (!list.length || (!trip.dest && list.some(k => needsDest.includes(k)))) return;
+  const row = document.createElement("div");
+  row.className = "after";
+  row.innerHTML = list.map(k => `<button type="button" data-tool="${k}">${icon(k)}${esc(toolLabel(k))} 바로가기</button>`).join("");
+  bubble.closest(".col").appendChild(row);
+}
+
+function errorText(e){
+  switch(e.status){
+    case 401: return "API 키가 올바르지 않습니다. 오른쪽 위 설정에서 키를 다시 입력해 주세요.";
+    case 404: return `선택하신 모델(${model})을 찾을 수 없습니다. 설정에서 다른 모델을 골라 주세요.`;
+    case 413: return "대화가 길어졌습니다. 왼쪽 위 버튼으로 대화를 새로 시작해 주세요.";
+    case 429: return "요청이 잠시 몰렸습니다. 30초쯤 뒤에 다시 보내 주세요.";
+    case 400: return `요청을 처리하지 못했습니다: ${e.message || "설정에서 모델을 바꿔 보세요."}`;
+    default:
+      if (!e.status) return "서버에 연결하지 못했습니다. 인터넷 연결을 확인하시거나, 이 파일을 브라우저에서 직접 여셨는지 확인해 주세요.";
+      return `오류가 발생했습니다 (${e.status}). ${e.message || ""}`;
+  }
+}
+
+/* ================================================================
+   9) 여행 조건 시트
+   ================================================================ */
+function openTrip(hint){
+  $("tOrigin").value = trip.origin; $("tDest").value = trip.dest; $("tDepart").value = trip.depart; $("tReturn").value = trip.ret; $("tPeople").value = String(trip.people);
+  $("tripHint").textContent = hint || "정해 두시면 몽실의 답변과 트립닷컴 바로가기에 반영됩니다.";
+  $("tripStatus").textContent = ""; $("tripStatus").className = "status";
+  $("tripScrim").hidden = false; setTimeout(() => (trip.dest ? $("tDepart") : $("tDest")).focus(), 50);
+}
+$("tripChip").onclick = () => openTrip();
+$("tripCancel").onclick = () => { $("tripScrim").hidden = true; pendingTool = null; };
+$("tripScrim").onclick = e => { if (e.target === $("tripScrim")){ $("tripScrim").hidden = true; pendingTool = null; } };
+$("tripSave").onclick = async () => {
+  const origin = $("tOrigin").value.trim() || "서울", dest = $("tDest").value.trim(), depart = $("tDepart").value, ret = $("tReturn").value;
+  if (!dest){ $("tripStatus").textContent = "목적지 도시를 입력해 주세요."; $("tripStatus").className = "status bad"; return; }
+  if (depart && ret && ret < depart){ $("tripStatus").textContent = "오는 날이 가는 날보다 빠릅니다."; $("tripStatus").className = "status bad"; return; }
+  $("tripStatus").textContent = "도시 정보를 확인하는 중입니다…"; $("tripStatus").className = "status";
+  try{
+    const d = dest !== trip.dest || !trip.country ? { ...(await resolveDest(dest)), iataTo:"" } : {};
+    let o = {};
+    if (origin !== trip.origin){ const g = await geocode(origin,"en").catch(()=>null); o = { originEn: g?.name || origin, iataFrom: "" }; }
+    Object.assign(trip, o, d, { origin, depart: depart || trip.depart, ret: ret || trip.ret, people: Number($("tPeople").value) });
+    saveTrip(); renderTrip(); $("tripScrim").hidden = true;
+    addNotice(`여행 조건을 바꿨습니다 · ${esc(tripSummary())}`);
+    if (pendingTool){ const t = pendingTool; pendingTool = null; showTool(t); }
+  }catch(e){ $("tripStatus").textContent = e.message || "도시 정보를 찾지 못했습니다."; $("tripStatus").className = "status bad"; }
+};
+
+/* ================================================================
+   10) 설정 시트
+   ================================================================ */
+const scrim = $("scrim"), keyInput = $("keyInput"), keyStatus = $("keyStatus"), modelSel = $("modelSel");
+function fillModels(list){
+  const all = [...new Set([...PREFERRED.filter(m => !list || list.includes(m)), ...(list||[])])];
+  if (!all.includes(model)) model = all[0] || PREFERRED[0];
+  modelSel.innerHTML = all.map(m => `<option value="${esc(m)}">${esc(m)}${m===PREFERRED[0]?" (추천)":""}</option>`).join("");
+  modelSel.value = model;
+}
+fillModels(null);
+$("searchToggle").checked = useSearch;
+function openSettings(msg="", kind=""){
+  keyInput.value = ""; keyInput.placeholder = apiKey ? `저장됨 · gsk_••••${apiKey.slice(-4)}` : "gsk_로 시작하는 키";
+  $("remember").checked = (()=>{ try{ return !!localStorage.getItem("groq_key"); }catch{ return false; } })();
+  keyStatus.textContent = msg; keyStatus.className = "status " + kind;
+  scrim.hidden = false; setTimeout(()=>keyInput.focus(), 50);
+}
+function closeSettings(){ scrim.hidden = true; keyInput.value = ""; keyInput.type = "password"; $("toggleKey").textContent="보기"; }
+async function verifyKey(k){
+  const r = await fetch(`${API}/models`,{headers:{Authorization:`Bearer ${k}`}});
+  if (!r.ok) throw Object.assign(new Error(),{status:r.status});
+  const j = await r.json();
+  return (j.data||[]).filter(m => m.active !== false && !SKIP_MODEL.test(m.id)).map(m => m.id).sort();
+}
+$("saveBtn").onclick = async () => {
+  const typed = keyInput.value.trim();
+  model = modelSel.value; pref.set("neon_model", model);
+  useSearch = $("searchToggle").checked; pref.set("neon_search", useSearch ? "1" : "0");
+  renderLive();
+  if (!typed){
+    if (!apiKey){ keyStatus.textContent = "키를 입력해 주세요."; keyStatus.className="status bad"; return; }
+    keyStatus.textContent = "저장했습니다."; keyStatus.className="status ok"; setTimeout(closeSettings, 400); return;
+  }
+  if (!/^gsk_[A-Za-z0-9]{20,}$/.test(typed)){ keyStatus.textContent = "Groq 키는 gsk_로 시작합니다. 공백 없이 붙여 넣어 주세요."; keyStatus.className="status bad"; return; }
+  keyStatus.textContent = "키를 확인하는 중입니다…"; keyStatus.className = "status";
+  try{
+    availableModels = await verifyKey(typed);
+    apiKey = typed; store.set("groq_key", typed, $("remember").checked);
+    fillModels(availableModels); pref.set("neon_model", model); renderLive();
+    keyStatus.textContent = `연결되었습니다 · ${model}`; keyStatus.className = "status ok";
+    setTimeout(closeSettings, 700);
+  }catch(e){
+    const framed = (()=>{ try{ return window.top !== window.self; }catch{ return true; } })();
+    keyStatus.textContent =
+      e.status===401 ? "유효하지 않은 키입니다. 다시 확인해 주세요. (401)" :
+      e.status===403 ? "접근이 거부되었습니다 (403). 회사·학교 네트워크나 VPN이 막고 있을 수 있습니다." :
+      e.status===429 ? "요청 한도를 넘었습니다 (429). 1분쯤 뒤에 다시 시도해 주세요." :
+      e.status ? `Groq 서버 오류입니다 (${e.status}).` :
+      framed ? "미리보기 화면 안에서는 외부 연결이 막혀 있습니다. 파일을 다운로드해서 크롬·사파리로 직접 열어 주세요." :
+      "Groq 서버에 연결하지 못했습니다. 광고 차단 확장 프로그램을 끄시거나 다른 네트워크에서 시도해 주세요.";
+    keyStatus.className = "status bad";
+  }
+};
+$("cancelBtn").onclick = closeSettings;
+scrim.onclick = e => { if (e.target === scrim) closeSettings(); };
+$("toggleKey").onclick = () => { const show = keyInput.type==="password"; keyInput.type = show?"text":"password"; $("toggleKey").textContent = show?"숨기기":"보기"; };
+$("forgetBtn").onclick = () => { store.del("groq_key"); apiKey=""; renderLive(); keyStatus.textContent="저장된 키를 삭제했습니다."; keyStatus.className="status ok"; keyInput.placeholder="gsk_로 시작하는 키"; };
+$("settingsBtn").onclick = () => openSettings();
+$("livePill").onclick = () => openSettings();
+document.addEventListener("keydown", e => { if (e.key === "Escape"){ if (!scrim.hidden) closeSettings(); $("tripScrim").hidden = true; $("toolScrim").hidden = true; } });
+
+/* ================================================================
+   11) 메뉴 · 입력
+   ================================================================ */
+const toolBtn = ([k,label]) => `<button type="button" data-tool="${k}"><span class="ic">${icon(k)}</span>${label}</button>`;
+$("menu").innerHTML = TOOLS.map(toolBtn).join("");
+$("toolGrid").innerHTML = TOOLS.map(toolBtn).join("") + `<button type="button" data-trip="1"><span class="ic">${icon("trip")}</span>여행 조건</button>`;
+$("plusBtn").onclick = () => { $("toolScrim").hidden = false; };
+$("toolClose").onclick = () => { $("toolScrim").hidden = true; };
+$("toolScrim").onclick = e => { if (e.target === $("toolScrim")) $("toolScrim").hidden = true; };
+$("fxMini").onclick = () => showTool("fx");
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tool],[data-ask],[data-trip]");
+  if (!t || busy) return;
+  $("toolScrim").hidden = true;
+  if (t.dataset.trip) return openTrip();
+  if (t.dataset.tool) return showTool(t.dataset.tool);
+  if (t.dataset.ask) send(t.dataset.ask);
+});
+const QUICK = ["일본 입국할 때 필요한 서류는요?","오사카 2박 3일 일정 짜 주세요","파리 공항에서 시내 가는 법","방콕 환율이랑 환전 팁","유럽 기차 패스 살 만한가요?","다낭 호텔은 어느 지역이 좋아요?"];
+$("quick").innerHTML = QUICK.map(q => `<button type="button" data-ask="${esc(q)}">${esc(q)}</button>`).join("");
+
+function updateSend(){ sendBtn.disabled = busy || !input.value.trim(); }
+input.addEventListener("input", () => { input.style.height="auto"; input.style.height = Math.min(input.scrollHeight,120)+"px"; updateSend(); });
+input.addEventListener("keydown", e => { if (e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); $("form").requestSubmit(); } });
+function send(text){
+  if (!text || busy) return false;
+  if (!apiKey){ openSettings("몽실과 대화하시려면 Groq API 키를 연결해 주세요. 위쪽 메뉴의 트립닷컴 바로가기·환율·날씨는 키 없이도 쓰실 수 있습니다.","bad"); return false; }
+  addBubble("me", text); ask(text); return true;
+}
+$("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (send(text)){ input.value=""; input.style.height="auto"; updateSend(); }
+});
+$("clearBtn").onclick = () => { if (busy) return; history = []; log.innerHTML = ""; lastSender = null; start(); };
+
+/* ================================================================
+   12) 시작
+   ================================================================ */
+function start(){
+  addDate();
+  addBubble("bot","안녕하세요, 여행 메이트 몽실입니다 🧶 궁금하신 나라와 도시 정보를 정확하게 찾아 드리고, 예약은 트립닷컴으로 바로 연결해 드리겠습니다.");
+  addBubble("bot","위쪽 메뉴에서 항공권·호텔·기차·투어를 바로 누르시거나, 아래에 궁금하신 점을 편하게 적어 주세요.");
+  if (!apiKey) addNotice("Groq API 키를 연결하시면 몽실과 대화하실 수 있습니다. 오른쪽 위 ⚙에서 연결해 주세요.<br>트립닷컴 바로가기·환율·날씨·나라 정보는 키 없이도 쓰실 수 있습니다.");
+}
+renderTrip(); renderLive(); loadRates(); start();
+</script>
+</body>
+</html>
