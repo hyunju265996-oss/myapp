@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#FBF8F3">
 <title>여행펫</title>
 <meta name="description" content="내 띠 펫과 함께 떠나는 여행 · 여행 계획 · 항공권 · 여행지도 색칠하기">
@@ -692,6 +692,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
   --shadow-lg: 0 16px 40px -12px rgba(76, 52, 58, .28);
   --tabbar-h: 76px;
   --font: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  --app-h: 100dvh;
+  --app-w: min(100vw, 480px);
   color-scheme: light;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -705,8 +707,8 @@ a { color: inherit; }
 :focus-visible { outline: 3px solid #E58AA0; outline-offset: 2px; }
 h1, h2, h3, p { margin: 0; }
 
-.app { position: relative; max-width: 480px; min-height: 100dvh; margin: 0 auto; background: var(--bg); box-shadow: 0 0 60px -24px rgba(76, 52, 58, .3); }
-.screen { min-height: 100dvh; padding-bottom: calc(var(--tabbar-h) + 24px + env(safe-area-inset-bottom)); }
+.app { position: relative; max-width: 480px; min-height: var(--app-h); margin: 0 auto; background: var(--bg); box-shadow: 0 0 60px -24px rgba(76, 52, 58, .3); }
+.screen { min-height: var(--app-h); padding-bottom: calc(var(--tabbar-h) + 24px + env(safe-area-inset-bottom)); }
 .screen.no-tabbar { padding-bottom: 24px; }
 
 /* ---------- 공통 ---------- */
@@ -783,18 +785,18 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
 
 /* ---------- 바텀시트 / 토스트 ---------- */
 .sheet-dim { position: fixed; inset: 0; z-index: 60; background: rgba(45, 38, 39, .35); animation: fade .2s ease; }
-.sheet { position: fixed; z-index: 70; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 480px; max-height: 88dvh; display: flex; flex-direction: column; background: var(--bg); border-radius: 28px 28px 0 0; box-shadow: var(--shadow-lg); animation: up .26s cubic-bezier(.2, .9, .3, 1); }
+.sheet { position: fixed; z-index: 70; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 480px; max-height: calc(var(--app-h) * .88); display: flex; flex-direction: column; background: var(--bg); border-radius: 28px 28px 0 0; box-shadow: var(--shadow-lg); animation: up .26s cubic-bezier(.2, .9, .3, 1); }
 .sheet-grip { width: 44px; height: 5px; border-radius: 9px; background: #DDD3C9; margin: 10px auto 0; }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px 6px; }
 .sheet-head h2 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; }
 .sheet-body { overflow-y: auto; padding: 8px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
 @keyframes up { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
 @keyframes fade { from { opacity: 0; } }
-.toast { position: fixed; z-index: 90; left: 50%; top: calc(16px + env(safe-area-inset-top)); transform: translate(-50%, -12px); max-width: min(440px, 90vw); padding: 14px 20px; border-radius: 18px; background: #3A3034; color: #fff; font-weight: 700; font-size: 15px; text-align: center; opacity: 0; pointer-events: none; transition: .25s ease; }
+.toast { position: fixed; z-index: 90; left: 50%; top: calc(16px + env(safe-area-inset-top)); transform: translate(-50%, -12px); max-width: min(440px, calc(var(--app-w) * .9)); padding: 14px 20px; border-radius: 18px; background: #3A3034; color: #fff; font-weight: 700; font-size: 15px; text-align: center; opacity: 0; pointer-events: none; transition: .25s ease; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- 온보딩 ---------- */
-.onb { min-height: 100dvh; padding: calc(28px + env(safe-area-inset-top)) 24px 32px; display: flex; flex-direction: column; gap: 22px; }
+.onb { min-height: var(--app-h); padding: calc(28px + env(safe-area-inset-top)) 24px 32px; display: flex; flex-direction: column; gap: 22px; }
 .onb h1 { font-size: 28px; line-height: 1.35; font-weight: 800; letter-spacing: -0.03em; }
 .steps { display: flex; gap: 6px; }
 .steps i { flex: 1; height: 6px; border-radius: 9px; background: #EDE5DC; }
@@ -810,7 +812,7 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
 .big-pet svg { width: 100%; height: 100%; }
 
 /* ---------- 홈 (펫 방) ---------- */
-.room { position: relative; height: 100dvh; min-height: 620px; overflow: hidden; }
+.room { position: relative; height: var(--app-h); min-height: 620px; overflow: hidden; }
 .room-wall { position: absolute; inset: 0 0 34% 0; transition: background .3s ease; }
 .room-floor { position: absolute; inset: 66% 0 0 0; transition: background .3s ease; }
 .room-floor::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 10px; background: rgba(0, 0, 0, .05); }
@@ -829,7 +831,7 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
 .stat { padding: 10px 14px; }
 .stat .row { justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
 .stat .bar { height: 10px; }
-.pet-stage { position: absolute; z-index: 3; left: 50%; bottom: calc(var(--tabbar-h) + 130px); transform: translateX(-50%); width: min(78vw, 330px); aspect-ratio: 1; }
+.pet-stage { position: absolute; z-index: 3; left: 50%; bottom: calc(var(--tabbar-h) + 130px); transform: translateX(-50%); width: min(calc(var(--app-w) * .78), 330px); aspect-ratio: 1; }
 .pet-stage .pet-svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 18px rgba(76, 52, 58, .12)); }
 .pet-stage .pet-body { transform-origin: 100px 190px; animation: breathe 3.2s ease-in-out infinite; }
 .pet-stage.hop .pet-body { animation: hop .5s ease 3; }
@@ -843,7 +845,7 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
 @keyframes chomp { 50% { transform: scale(1.06, .92); } }
 .spark { animation: twinkle 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes twinkle { 50% { opacity: .25; } }
-.bubble { position: absolute; z-index: 7; left: 50%; bottom: calc(var(--tabbar-h) + 130px + min(78vw, 330px) - 6px); transform: translateX(-50%); max-width: 86%; padding: 12px 18px; border-radius: 22px; background: #fff; box-shadow: var(--shadow); font-weight: 700; font-size: 16px; text-align: center; }
+.bubble { position: absolute; z-index: 7; left: 50%; bottom: calc(var(--tabbar-h) + 130px + min(calc(var(--app-w) * .78), 330px) - 6px); transform: translateX(-50%); max-width: 86%; padding: 12px 18px; border-radius: 22px; background: #fff; box-shadow: var(--shadow); font-weight: 700; font-size: 16px; text-align: center; }
 .bubble::after { content: ""; position: absolute; left: 50%; bottom: -9px; margin-left: -9px; border: 9px solid transparent; border-bottom: 0; border-top-color: #fff; }
 .fx { position: absolute; z-index: 8; font-size: 34px; pointer-events: none; animation: floatUp 1.2s ease forwards; }
 @keyframes floatUp { from { opacity: 1; transform: translateY(0) scale(.8); } to { opacity: 0; transform: translateY(-90px) scale(1.2); } }
@@ -861,18 +863,19 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
 .shop-item.locked .p { color: var(--butter-ink); }
 
 /* ---------- 지도 ---------- */
-.map-box { position: relative; height: 300px; border-radius: var(--r-lg); overflow: hidden; background: #E9F2F7; box-shadow: var(--shadow); }
+.map-box { isolation: isolate; position: relative; height: 300px; border-radius: var(--r-lg); overflow: hidden; background: #E9F2F7; box-shadow: var(--shadow); }
 .map-box.tall { height: 360px; }
 .map-box .map-el { position: absolute; inset: 0; }
 .map-note { position: absolute; z-index: 500; left: 10px; bottom: 10px; right: 10px; padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, .92); font-size: 13px; font-weight: 600; color: var(--ink-2); }
 .pin { width: 34px; height: 34px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); background: var(--pink); border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, .2); display: flex; align-items: center; justify-content: center; }
 .pin b { transform: rotate(45deg); font-size: 14px; color: #4A1F2C; }
 
-.geo { position: relative; height: min(118vw, 540px); border-radius: var(--r-lg); background: linear-gradient(#EAF4FA, #F4F9FC); box-shadow: var(--shadow); overflow: hidden; touch-action: none; }
+.geo { position: relative; height: min(calc(var(--app-w) * 1.18), 540px); border-radius: var(--r-lg); background: linear-gradient(#EAF4FA, #F4F9FC); box-shadow: var(--shadow); overflow: hidden; touch-action: none; }
 .geo svg { width: 100%; height: 100%; display: block; }
+.geo svg, .geo path.region { outline: none; -webkit-tap-highlight-color: transparent; }
 .geo path.region { stroke: #fff; stroke-width: .6; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill .2s ease; }
 .geo path.region:hover { filter: brightness(.96); }
-.geo path.region.sel { stroke: var(--ink); stroke-width: 2; }
+.geo path.region:focus-visible { stroke: var(--ink); stroke-width: 1.5; }
 .geo .zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 8px; }
 .geo .zoom button { width: 44px; height: 44px; border-radius: 14px; border: 0; background: #fff; box-shadow: var(--shadow); font-size: 22px; font-weight: 700; }
 .geo .crumb { position: absolute; left: 10px; top: 10px; }
@@ -902,14 +905,37 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
 .rec { padding: 16px; border-radius: var(--r-md); background: #fff; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
 .rec .t { font-weight: 800; font-size: 17px; }
 
-@media (min-width: 481px) { .room { height: min(100dvh, 900px); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 .home-top > .name-card { min-width: 0; flex: 1 1 auto; max-width: 62%; }
 .name-card .s, .name-card .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* ---------- 휴대폰 화면: 손가락 확대로 화면이 움직이지 않게 ---------- */
+.device, .device-viewport { display: contents; }
+.device-status { display: none; }
+
+/* ---------- PC/태블릿: 스마트폰 프레임 안에 고정 ---------- */
+body.device-mode { height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 20% 15%, #FCE6EC 0, transparent 40%), radial-gradient(circle at 85% 80%, #E3F6F0 0, transparent 45%), radial-gradient(circle at 80% 20%, #EFECFC 0, transparent 35%), #F4EEE8; }
+html:has(body.device-mode) { background: #F4EEE8; }
+body.device-mode .device { display: block; position: relative; flex-shrink: 0; width: 414px; height: 868px; padding: 12px; border-radius: 60px;
+  background: linear-gradient(145deg, #4A3F42, #2D2627); box-shadow: 0 40px 80px -30px rgba(76, 52, 58, .55), inset 0 0 0 2px #5C5054;
+  transform: scale(var(--device-scale, 1)); transform-origin: center center; }
+body.device-mode .device-screen { position: relative; width: 390px; height: 844px; border-radius: 48px; overflow: hidden; background: var(--bg); }
+body.device-mode .device-status { display: flex; position: absolute; z-index: 100; top: 0; left: 0; right: 0; height: 44px; padding: 0 30px; align-items: center; justify-content: space-between; font-weight: 700; font-size: 15px; color: var(--ink); pointer-events: none; }
+body.device-mode .device-status::before { content: ""; position: absolute; left: 50%; top: 10px; transform: translateX(-50%); width: 112px; height: 30px; border-radius: 20px; background: #2D2627; }
+body.device-mode .device-viewport { display: block; position: absolute; top: 44px; left: 0; right: 0; bottom: 0; overflow: hidden; transform: translateZ(0); --app-h: 800px; --app-w: 390px; }
+body.device-mode .app { height: 100%; min-height: 0; max-width: none; box-shadow: none; }
+body.device-mode .screen { height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+body.device-mode .screen::-webkit-scrollbar { display: none; }
+body.device-mode .tabbar, body.device-mode .sheet { max-width: none; }
+body.device-mode .tabbar { border-radius: 24px 24px 40px 40px; }
+
 </style>
 </head>
 <body>
+<div class="device"><div class="device-screen">
+<div class="device-status" aria-hidden="true"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+<div class="device-viewport">
 <div id="app" class="app">
   <main id="screen" class="screen"></main>
 
@@ -929,6 +955,7 @@ textarea.input { padding: 14px 16px; min-height: 110px; resize: vertical; }
   </section>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </div>
+</div></div></div>
 
 <script>
 // https://d3js.org v7.9.0 Copyright 2010-2023 Mike Bostock
@@ -1822,13 +1849,61 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
   var UI = global.TPUI, P = global.TPPets, Z = global.TPZodiac;
 
   function render(root, done) {
-    var form = { name: '', birth: '2000-05-05', zodiac: null, color: null, petName: '', override: null };
+    var form = { name: '', birth: '', birthText: '', zodiac: null, color: null, petName: '', override: null };
     var step = 1;
 
     function zodiacOf() {
       if (form.override) return Z.ZODIAC.filter(function (z) { return z.id === form.override; })[0];
+      if (!form.birth) return null;
       var r = Z.fromBirth(form.birth);
       return r && r.zodiac;
+    }
+
+    function resultHTML() {
+      var z = zodiacOf();
+      if (!z) return '';
+      var color = form.color || P.DEFAULT_COLOR[z.id];
+      var info = form.birth ? Z.fromBirth(form.birth) : null;
+      return '<div class="zodiac-result"><div class="pv">' + P.petSVG(z.id, { color: color }) + '</div><div class="stack" style="gap:4px">' +
+        '<span class="badge pink">' + z.hanja + ' · ' + z.ko + '띠</span><strong style="font-size:20px">' + z.name + '</strong>' +
+        '<span class="muted" style="font-size:15px">' + z.trait + '</span>' +
+        (info && info.beforeSeollal && !form.override ? '<span class="hint">설날(' + info.seollal.m + '월 ' + info.seollal.d + '일) 전에 태어나 ' + info.year + '년 띠로 정해졌어요</span>' : '') +
+        '</div></div><button type="button" class="btn ghost small" id="f-other" style="align-self:flex-start">내 띠가 다른가요?</button>';
+    }
+
+    // 숫자만 입력하면 '2000.05.05' 형태로 점을 자동으로 넣는다
+    function formatBirth(raw) {
+      var d = raw.replace(/[^0-9]/g, '').slice(0, 8);
+      if (d.length > 6) return d.slice(0, 4) + '.' + d.slice(4, 6) + '.' + d.slice(6);
+      if (d.length > 4) return d.slice(0, 4) + '.' + d.slice(4);
+      return d;
+    }
+    function parseBirth(text) {
+      var d = text.replace(/[^0-9]/g, '');
+      if (d.length !== 8) return { ok: false };
+      var y = +d.slice(0, 4), m = +d.slice(4, 6), day = +d.slice(6, 8);
+      var dt = new Date(y, m - 1, day);
+      if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== day) return { ok: false, msg: '없는 날짜예요. 다시 확인해주세요' };
+      if (y < 1920 || dt > new Date()) return { ok: false, msg: '1920년부터 오늘까지의 날짜를 입력해주세요' };
+      return { ok: true, iso: d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8) };
+    }
+    // 입력칸은 그대로 두고 결과 카드만 바꿔서 입력이 끊기지 않게
+    function updateResult() {
+      var box = root.querySelector('#z-result'); if (!box) return;
+      box.innerHTML = resultHTML();
+      root.querySelector('#f-next').disabled = !zodiacOf();
+      bindOther();
+    }
+    function bindOther() {
+      var b = root.querySelector('#f-other');
+      if (!b) return;
+      b.onclick = function () {
+        var sh = UI.openSheet('띠 직접 고르기', '<p class="muted">음력 생일 기준으로 띠가 다르다면 직접 골라주세요.</p><div class="dex-grid">' +
+          Z.ZODIAC.map(function (z) { return '<button class="dex-card" data-z="' + z.id + '"><div class="pv">' + P.petSVG(z.id) + '</div><span class="n">' + z.ko + '</span></button>'; }).join('') + '</div>');
+        UI.$$('[data-z]', sh).forEach(function (el) {
+          el.onclick = function () { form.override = el.dataset.z; form.color = null; UI.closeSheet(); updateResult(); };
+        });
+      };
     }
 
     function draw() {
@@ -1836,19 +1911,12 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
       var color = form.color || (z && P.DEFAULT_COLOR[z.id]);
       var html = '<div class="onb"><div class="steps" aria-label="' + step + '/3 단계"><i class="on"></i><i class="' + (step > 1 ? 'on' : '') + '"></i><i class="' + (step > 2 ? 'on' : '') + '"></i></div>';
       if (step === 1) {
-        var info = Z.fromBirth(form.birth);
         html += '<div><p class="eyebrow">여행펫 가입하기</p><h1>생년월일을 알려주시면<br>내 띠 펫이 찾아와요</h1></div>' +
           '<label class="field"><span>이름 (닉네임)</span><input class="input" id="f-name" maxlength="12" placeholder="예: 여행자" value="' + UI.esc(form.name) + '" autocomplete="nickname"></label>' +
-          '<label class="field"><span>생년월일</span><input class="input" id="f-birth" type="date" min="1920-01-01" max="' + new Date().toISOString().slice(0, 10) + '" value="' + UI.esc(form.birth) + '"></label>';
-        if (z) {
-          html += '<div class="zodiac-result"><div class="pv">' + P.petSVG(z.id, { color: color }) + '</div><div class="stack" style="gap:4px">' +
-            '<span class="badge pink">' + z.hanja + ' · ' + z.ko + '띠</span><strong style="font-size:20px">' + z.name + '</strong>' +
-            '<span class="muted" style="font-size:15px">' + z.trait + '</span>' +
-            (info && info.beforeSeollal && !form.override ? '<span class="hint">설날(' + info.seollal.m + '월 ' + info.seollal.d + '일) 전에 태어나 ' + info.year + '년 띠로 정해졌어요</span>' : '') +
-            '</div></div>' +
-            '<button type="button" class="btn ghost small" id="f-other" style="align-self:flex-start">내 띠가 다른가요?</button>';
-        }
-        html += '<div style="flex:1"></div><button class="btn block" id="f-next" ' + (z ? '' : 'disabled') + '>다음</button>' +
+          '<label class="field"><span>생년월일 (숫자 8자리)</span><input class="input" id="f-birth" type="text" inputmode="numeric" autocomplete="bday" maxlength="10" placeholder="예: 2000.05.05" value="' + UI.esc(form.birthText) + '" aria-describedby="f-birth-msg"></label>' +
+          '<p class="hint" id="f-birth-msg" style="margin-top:-12px">숫자만 입력하면 점(.)은 자동으로 들어가요</p>' +
+          '<div id="z-result" class="stack" style="gap:12px">' + resultHTML() + '</div>';
+        html += '<div style="flex:1"><button class="btn block" id="f-next" ' + (z ? '' : 'disabled') + '>다음</button>' +
           '<button type="button" class="btn ghost block" id="f-demo">예시(용띠)로 바로 둘러보기</button>';
       } else if (step === 2) {
         html += '<div><p class="eyebrow">' + z.ko + '띠 펫이 왔어요!</p><h1>' + z.name + '의 색을<br>골라주세요</h1></div>' +
@@ -1870,14 +1938,18 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
     function bind() {
       var $ = function (s) { return root.querySelector(s); };
       if ($('#f-name')) $('#f-name').oninput = function (e) { form.name = e.target.value; };
-      if ($('#f-birth')) $('#f-birth').onchange = function (e) { form.birth = e.target.value; form.override = null; form.color = null; draw(); };
-      if ($('#f-other')) $('#f-other').onclick = function () {
-        var b = UI.openSheet('띠 직접 고르기', '<p class="muted">음력 생일 기준으로 띠가 다르다면 직접 골라주세요.</p><div class="dex-grid">' +
-          Z.ZODIAC.map(function (z) { return '<button class="dex-card" data-z="' + z.id + '"><div class="pv">' + P.petSVG(z.id) + '</div><span class="n">' + z.ko + '</span></button>'; }).join('') + '</div>');
-        UI.$$('[data-z]', b).forEach(function (el) {
-          el.onclick = function () { form.override = el.dataset.z; form.color = null; UI.closeSheet(); draw(); };
-        });
+      var bi = $('#f-birth');
+      if (bi) bi.oninput = function () {
+        var f = formatBirth(bi.value);
+        if (f !== bi.value) bi.value = f;
+        form.birthText = f;
+        var r = parseBirth(f), msg = $('#f-birth-msg');
+        var next = r.ok ? r.iso : '';
+        if (next !== form.birth) { form.birth = next; form.override = null; form.color = null; updateResult(); }
+        msg.textContent = r.msg || '숫자만 입력하면 점(.)은 자동으로 들어가요';
+        msg.style.color = r.msg ? '#B3261E' : '';
       };
+      bindOther();
       if ($('#f-demo')) $('#f-demo').onclick = function () { done(global.TPData.demoState()); };
       UI.$$('[data-color]', root).forEach(function (b) { b.onclick = function () { form.color = b.dataset.color; draw(); }; });
       if ($('#f-pet')) $('#f-pet').oninput = function (e) { form.petName = e.target.value; };
@@ -1886,6 +1958,7 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
         var z = zodiacOf();
         if (step === 1) {
           if (!form.name.trim()) { UI.toast('이름을 입력해주세요'); $('#f-name').focus(); return; }
+          if (!z) { UI.toast('생년월일 8자리를 입력해주세요'); $('#f-birth').focus(); return; }
           step = 2; draw(); return;
         }
         if (step === 2) { form.color = form.color || P.DEFAULT_COLOR[z.id]; step = 3; draw(); return; }
@@ -2373,7 +2446,7 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
       '<button class="btn block" id="share">🔗 초대 링크 공유하기</button>' +
       '<div class="card stack"><h2>동행 직접 추가</h2><form class="row" id="add-m"><input class="input" name="n" placeholder="친구 이름" maxlength="10"><button class="btn small mint" style="min-height:52px">추가</button></form>' +
       '<div class="list">' + t.members.map(function (m, i) {
-        return '<div class="list-item"><span class="avatar">' + (m.zodiac ? P.petSVG(m.zodiac) : UI.esc(m.name.slice(0, 1))) + '</span><span style="flex:1" class="t">' + UI.esc(m.name) + (m.me ? ' (나)' : '') + '</span>' +
+        return '<div class="list-item"><span class="avatar">' + (m.zodiac ? P.petSVG(m.zodiac) : UI.esc(m.name.slice(0, 1))) + '</span><span style="flex:1" class="t">' + UI.esc(m.name) + (m.me && m.name !== '나' ? ' (나)' : '') + '</span>' +
           (m.me ? '' : '<button class="icon-btn" data-rm="' + i + '" aria-label="' + UI.esc(m.name) + ' 빼기">✕</button>') + '</div>';
       }).join('') + '</div></div>', { onClose: after });
     b.querySelector('#share').onclick = function () {
@@ -2659,6 +2732,7 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
         if (!country) return fillFor(cnt.country[p.iso] || 0);
         return fillFor(cnt.region[p.id || p.iso] || 0);
       })
+      .attr('data-fill', function () { return this.getAttribute('fill'); })
       .attr('aria-label', function (f) { return label(f); })
       .on('click', function (e, f) { onRegion(root, f); })
       .on('keydown', function (e, f) { if (e.key === 'Enter') onRegion(root, f); })
@@ -2711,7 +2785,11 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
 
   function onRegion(root, f) {
     var p = f.properties;
-    gSel.selectAll('path.region').classed('sel', function (x) { return x === f; });
+    // 선택한 지역만 진한 색으로
+    gSel.selectAll('path.region').attr('fill', function (x) {
+      var base = this.getAttribute('data-fill');
+      return x === f ? d3.color(base).darker(0.9).formatHex() : base;
+    });
     if (scope === 'kr') return regionSheet(root, p.key, p.sidonm + ' ' + p.name, 'kr');
     if (!country) {
       if (p.iso === 'KOR') { scope = 'kr'; render(root); return; }
@@ -2903,7 +2981,7 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
       if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
     updateTabPet();
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0); screen.scrollTop = 0;
     switch (parts[0]) {
       case 'plan': parts[1] ? global.TPPlan.detail(screen, parts[1], 0) : global.TPPlan.list(screen); break;
       case 'join': global.TPPlan.join(screen, parts.slice(1).join('/')); break;
@@ -2942,6 +3020,28 @@ window.TP_WORLD_ADMIN1={"type":"Topology","arcs":[[[33833,18876],[-6,-60],[21,-3
       UI.confirm('다시 가입하기', '이 기기에 저장된 펫, 여행 기록, 계획이 모두 지워져요.', '모두 지우기', function () { S.reset(); location.hash = ''; route(); });
     };
   }
+
+  /* PC처럼 넓은 화면에서는 스마트폰 프레임에 넣고, 창 크기·브라우저 확대에 맞춰 프레임 크기를 맞춘다 */
+  var wide = global.matchMedia('(min-width: 700px)');
+  function fitDevice() {
+    var on = wide.matches;
+    document.body.classList.toggle('device-mode', on);
+    if (on) {
+      var s = Math.min(1, (window.innerHeight - 32) / 868, (window.innerWidth - 32) / 414);
+      document.documentElement.style.setProperty('--device-scale', Math.max(0.4, s).toFixed(3));
+    }
+  }
+  fitDevice();
+  window.addEventListener('resize', fitDevice);
+  // 휴대폰에서 두 손가락 확대·두 번 탭 확대로 화면 전체가 움직이지 않게
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1 && !e.target.closest('.geo, .map-box')) e.preventDefault(); }, { passive: false });
+  var lastTap = 0;
+  document.addEventListener('touchend', function (e) {
+    var now = Date.now();
+    if (now - lastTap < 300 && !e.target.closest('.geo, .map-box, input, textarea, select')) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
 
   global.TPApp = { openSettings: openSettings, route: route };
   S.load();

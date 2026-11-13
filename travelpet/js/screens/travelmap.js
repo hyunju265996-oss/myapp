@@ -126,6 +126,7 @@
         if (!country) return fillFor(cnt.country[p.iso] || 0);
         return fillFor(cnt.region[p.id || p.iso] || 0);
       })
+      .attr('data-fill', function () { return this.getAttribute('fill'); })
       .attr('aria-label', function (f) { return label(f); })
       .on('click', function (e, f) { onRegion(root, f); })
       .on('keydown', function (e, f) { if (e.key === 'Enter') onRegion(root, f); })
@@ -178,7 +179,11 @@
 
   function onRegion(root, f) {
     var p = f.properties;
-    gSel.selectAll('path.region').classed('sel', function (x) { return x === f; });
+    // 선택한 지역만 진한 색으로
+    gSel.selectAll('path.region').attr('fill', function (x) {
+      var base = this.getAttribute('data-fill');
+      return x === f ? d3.color(base).darker(0.9).formatHex() : base;
+    });
     if (scope === 'kr') return regionSheet(root, p.key, p.sidonm + ' ' + p.name, 'kr');
     if (!country) {
       if (p.iso === 'KOR') { scope = 'kr'; render(root); return; }
