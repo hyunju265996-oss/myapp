@@ -165,7 +165,7 @@
       '<button class="btn block" id="share">🔗 초대 링크 공유하기</button>' +
       '<div class="card stack"><h2>동행 직접 추가</h2><form class="row" id="add-m"><input class="input" name="n" placeholder="친구 이름" maxlength="10"><button class="btn small mint" style="min-height:52px">추가</button></form>' +
       '<div class="list">' + t.members.map(function (m, i) {
-        return '<div class="list-item"><span class="avatar">' + (m.zodiac ? P.petSVG(m.zodiac) : UI.esc(m.name.slice(0, 1))) + '</span><span style="flex:1" class="t">' + UI.esc(m.name) + (m.me ? ' (나)' : '') + '</span>' +
+        return '<div class="list-item"><span class="avatar">' + (m.zodiac ? P.petSVG(m.zodiac) : UI.esc(m.name.slice(0, 1))) + '</span><span style="flex:1" class="t">' + UI.esc(m.name) + (m.me && m.name !== '나' ? ' (나)' : '') + '</span>' +
           (m.me ? '' : '<button class="icon-btn" data-rm="' + i + '" aria-label="' + UI.esc(m.name) + ' 빼기">✕</button>') + '</div>';
       }).join('') + '</div></div>', { onClose: after });
     b.querySelector('#share').onclick = function () {

@@ -38,7 +38,7 @@
       if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
     updateTabPet();
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0); screen.scrollTop = 0;
     switch (parts[0]) {
       case 'plan': parts[1] ? global.TPPlan.detail(screen, parts[1], 0) : global.TPPlan.list(screen); break;
       case 'join': global.TPPlan.join(screen, parts.slice(1).join('/')); break;
@@ -77,6 +77,28 @@
       UI.confirm('다시 가입하기', '이 기기에 저장된 펫, 여행 기록, 계획이 모두 지워져요.', '모두 지우기', function () { S.reset(); location.hash = ''; route(); });
     };
   }
+
+  /* PC처럼 넓은 화면에서는 스마트폰 프레임에 넣고, 창 크기·브라우저 확대에 맞춰 프레임 크기를 맞춘다 */
+  var wide = global.matchMedia('(min-width: 700px)');
+  function fitDevice() {
+    var on = wide.matches;
+    document.body.classList.toggle('device-mode', on);
+    if (on) {
+      var s = Math.min(1, (window.innerHeight - 32) / 868, (window.innerWidth - 32) / 414);
+      document.documentElement.style.setProperty('--device-scale', Math.max(0.4, s).toFixed(3));
+    }
+  }
+  fitDevice();
+  window.addEventListener('resize', fitDevice);
+  // 휴대폰에서 두 손가락 확대·두 번 탭 확대로 화면 전체가 움직이지 않게
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1 && !e.target.closest('.geo, .map-box')) e.preventDefault(); }, { passive: false });
+  var lastTap = 0;
+  document.addEventListener('touchend', function (e) {
+    var now = Date.now();
+    if (now - lastTap < 300 && !e.target.closest('.geo, .map-box, input, textarea, select')) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
 
   global.TPApp = { openSettings: openSettings, route: route };
   S.load();
